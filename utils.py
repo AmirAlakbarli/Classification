@@ -174,3 +174,15 @@ def plt_3d_multiclass_classification(x, y):
     ax.set_ylabel("$x_2$")
     ax.set_zlabel("$y$")
     return ax
+
+
+def plt_hist(J_hist):
+    fig, (ax1, ax2) = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 4))
+    ax1.plot(J_hist)
+    len_ = len(J_hist)
+    tail = int(len_ * 0.9)
+    ax2.plot(tail + np.arange(len_ - tail), J_hist[tail:])
+
+    ax1.set_title("Cost vs. iteration");  ax2.set_title("Cost vs. iteration (tail)")
+    ax1.set_ylabel('Cost')             ;  ax2.set_ylabel('Cost') 
+    ax1.set_xlabel('iteration step')   ;  ax2.set_xlabel('iteration step')
