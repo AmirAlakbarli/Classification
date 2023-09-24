@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+import copy
 
 
 def generate_univariate_x(m):
@@ -76,6 +78,56 @@ def classify(y, borders, classes):
     return y
 
 
+def compute_cost_logistic(X, y, w, b, lambda_=0):
+    m = X.shape[0]
+    cost = 0.0
+
+    for i in range(m):
+        z_i = np.dot(w, X[i]) + b
+        f_wb_i = sigmoid(z_i)
+        cost += -y[i] * np.log(f_wb_i) - (1 - y[i]) * np.log(1 - f_wb_i)
+
+    cost /= m
+
+    # Regularization
+    # if lambda_ != 0:
+    #     for i in range(n):
+    #         reg_cost += w[i]**2
+    #     reg_cost = reg_cost * lambda_ / (2 * m)
+
+    return cost
+
+
+def compute_gradient_logistic(X, y, w, b):
+    m = X.shape[0]
+    dj_dw = np.dot(sigmoid(np.dot(X, w) + b) - y, X) / m
+    dj_db = np.sum(sigmoid(np.dot(X, w) + b) - y) / m
+    return dj_dw, dj_db
+
+
+def gradient_descent_logistic(X, y, w_in, b_in, cost_function, gradient_function, alpha, num_iters):
+    J_history = []
+    w = copy.deepcopy(w_in)
+    b = b_in
+
+    for i in range(num_iters):
+        dj_dw, dj_db = gradient_function(X, y, w, b)
+        w -= alpha * dj_dw
+        b -= alpha * dj_db
+
+        if i < 100000:
+            J_history.append(cost_function(X, y, w, b))
+
+        if i % math.ceil(num_iters / 10) == 0:
+            print(f"Iteration {i: 4d}: Cost {J_history[-1]: 8.2f}")
+
+    return w, b, J_history
+
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
 def plt_binary_classification(x, y):
     plt.scatter(x[y == 0], y[y == 0], marker='o', c='b')
     plt.scatter(x[y == 1], y[y == 1], marker='x', c='r')
@@ -88,7 +140,6 @@ def plt_3d():
     fig.canvas.footer_visible = False
 
     # Plot configuration
-
     ax = fig.add_subplot(111, projection='3d')
     ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
     ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
