@@ -131,6 +131,32 @@ def sigmoid(x):
 def plt_binary_classification(x, y):
     plt.scatter(x[y == 0], y[y == 0], marker='o', c='b')
     plt.scatter(x[y == 1], y[y == 1], marker='x', c='r')
+    plt.xlabel("$x$")
+    plt.ylabel("$y$")
+
+
+def plt_2d_binary_classification(x, y):
+    plt.scatter(x[y == 0, 0], x[y == 0, 1], marker='o', c='b')
+    plt.scatter(x[y == 1, 0], x[y == 1, 1], marker='x', c='r')
+    plt.xlabel("$x_1$")
+    plt.ylabel("$x_2$")
+
+
+def plt_2d_multiclass_classification(x, y):
+    plt.scatter(x[:, 0], x[:, 1], cmap='viridis', c=y)
+    plt.xlabel("$x_1$")
+    plt.ylabel("$x_2$")
+
+
+def plt_borders(X, y, w, b):
+    classes, class_num = class_info(y)
+    y_borders = get_borders(classes)
+    x2_min = X[:, 1].min()
+    x2_max = X[:, 1].max()
+    for i in range(class_num-1):
+        x1_min = (y_borders[i] - b - w[1] * x2_min) / w[0]
+        x1_max = (y_borders[i] - b - w[1] * x2_max) / w[0]
+        plt.plot([x1_min, x1_max], [x2_min, x2_max], c='g')
 
 
 def plt_3d():
@@ -177,12 +203,16 @@ def plt_3d_multiclass_classification(x, y):
 
 
 def plt_hist(J_hist):
-    fig, (ax1, ax2) = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 4))
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2, constrained_layout=True, figsize=(12, 4))
     ax1.plot(J_hist)
     len_ = len(J_hist)
     tail = int(len_ * 0.9)
     ax2.plot(tail + np.arange(len_ - tail), J_hist[tail:])
 
-    ax1.set_title("Cost vs. iteration");  ax2.set_title("Cost vs. iteration (tail)")
-    ax1.set_ylabel('Cost')             ;  ax2.set_ylabel('Cost') 
-    ax1.set_xlabel('iteration step')   ;  ax2.set_xlabel('iteration step')
+    ax1.set_title("Cost vs. iteration")
+    ax2.set_title("Cost vs. iteration (tail)")
+    ax1.set_ylabel('Cost')
+    ax2.set_ylabel('Cost')
+    ax1.set_xlabel('iteration step')
+    ax2.set_xlabel('iteration step')
