@@ -128,22 +128,22 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-def plt_binary_classification(x, y):
-    plt.scatter(x[y == 0], y[y == 0], marker='o', c='b')
-    plt.scatter(x[y == 1], y[y == 1], marker='x', c='r')
+def plt_binary_classification(X, y):
+    plt.scatter(X[y == 0], y[y == 0], marker='o', c='b')
+    plt.scatter(X[y == 1], y[y == 1], marker='x', c='r')
     plt.xlabel("$x$")
     plt.ylabel("$y$")
 
 
-def plt_2d_binary_classification(x, y):
-    plt.scatter(x[y == 0, 0], x[y == 0, 1], marker='o', c='b')
-    plt.scatter(x[y == 1, 0], x[y == 1, 1], marker='x', c='r')
+def plt_2d_binary_classification(X, y):
+    plt.scatter(X[y == 0, 0], X[y == 0, 1], marker='o', c='b')
+    plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='x', c='r')
     plt.xlabel("$x_1$")
     plt.ylabel("$x_2$")
 
 
-def plt_2d_multiclass_classification(x, y):
-    plt.scatter(x[:, 0], x[:, 1], cmap='viridis', c=y)
+def plt_2d_multiclass_classification(X, y):
+    plt.scatter(X[:, 0], X[:, 1], cmap='viridis', c=y)
     plt.xlabel("$x_1$")
     plt.ylabel("$x_2$")
 
@@ -216,3 +216,46 @@ def plt_hist(J_hist):
     ax2.set_ylabel('Cost')
     ax1.set_xlabel('iteration step')
     ax2.set_xlabel('iteration step')
+
+
+def map_feature(X1, X2):
+    """
+    Feature mapping function to polynomial features    
+    """
+    X1 = np.atleast_1d(X1)
+    X2 = np.atleast_1d(X2)
+    degree = 6
+    out = []
+    for i in range(1, degree+1):
+        for j in range(i + 1):
+            out.append((X1**(i-j) * (X2**j)))
+    return np.stack(out, axis=1)
+
+
+def plot_decision_boundary(w, b, X, y):
+    # Credit to dibgerge on Github for this plotting code
+
+    plt_2d_binary_classification(X, y)
+
+    if X.shape[1] <= 2:
+        plot_x = np.array([min(X[:, 0]), max(X[:, 0])])
+        plot_y = (-1. / w[1]) * (w[0] * plot_x + b)
+
+        plt.plot(plot_x, plot_y, c="g")
+
+    else:
+        u = np.linspace(-1, 1.5, 50)
+        v = np.linspace(-1, 1.5, 50)
+
+        z = np.zeros((len(u), len(v)))
+
+        # Evaluate z = theta*x over the grid
+        for i in range(len(u)):
+            for j in range(len(v)):
+                z[i, j] = sigmoid(np.dot(map_feature(u[i], v[j]), w) + b)
+
+        # important to transpose z before calling contour
+        z = z.T
+
+        # Plot z = 0.5
+        plt.contour(u, v, z, levels=[0.5], colors="g")
